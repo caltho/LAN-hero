@@ -1,0 +1,518 @@
+/* DnD Fantasy Theme - Orcish Goblin Style */
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Fondamento&family=MedievalSharp&family=Grenze:wght@400;600&family=Uncial+Antiqua&display=swap");
+
+:root {
+  --color-bg-dark: #1a1d21;
+  --color-bg-main: #2a2e33;
+  --color-bg-light: #3a3f45;
+  --color-text: #e0d8c8;
+  --color-accent: #437f6d; /* Goblin green */
+  --color-accent-dark: #455d2e;
+  --color-accent-light: #78a050;
+  --color-secondary: #007286; /* Earthy brown */
+  --color-highlight: #c43e1c; /* Orc war paint red */
+  --color-border: #3e3c38;
+  --color-xp: #78a050;
+  --shadow-main: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+body {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text);
+  font-family: "MedievalSharp", cursive;
+  font-size: 16px; /* Using even pixel values helps with rendering */
+  line-height: 1.5;
+  transform-style: preserve-3d;
+  margin: 0;
+  padding: 0;
+}
+
+.app-container {
+  max-width: 1000px;
+  margin: 20px auto;
+  background-color: var(--color-bg-main);
+  border-radius: 8px;
+  box-shadow: var(--shadow-main);
+  border: 2px solid var(--color-border);
+  overflow: hidden;
+}
+
+/* Tab Navigation */
+.tab-navigation {
+  display: flex;
+  background-color: var(--color-bg-dark);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.tab {
+  background: none;
+  border: none;
+  padding: 15px 20px;
+  color: var(--color-text);
+  font-family: "Pirata One", cursive;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  flex: 1;
+  text-align: center;
+}
+
+.tab:hover {
+  color: var(--color-accent-light);
+}
+
+.tab-active {
+  background-color: var(--color-bg-main);
+  color: var(--color-accent-light);
+  box-shadow: inset 0 3px 0 var(--color-accent);
+}
+
+.tab-active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid var(--color-bg-main);
+}
+
+.tab-content {
+  padding: 20px;
+}
+
+/* Character Section */
+.character-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.character-header {
+  background-color: var(--color-bg-dark);
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: var(--shadow-main);
+  position: relative;
+  overflow: hidden;
+}
+
+.character-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23614e2a' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.5;
+}
+
+.character-name {
+  color: var(--color-highlight);
+  font-family: "Pirata One", cursive;
+  font-size: 2.5rem;
+  margin: 0 0 10px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.character-level {
+  background-color: var(--color-accent-dark);
+  padding: 6px 15px;
+  border-radius: 20px;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  border: 1px solid var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.character-xp {
+  width: 100%;
+  text-align: center;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+
+.character-xp-bar {
+  height: 15px;
+  background-color: var(--color-bg-light);
+  border-radius: 10px;
+  margin-top: 5px;
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  position: relative;
+}
+
+.character-xp-fill {
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    var(--color-accent-dark),
+    var(--color-accent-light)
+  );
+  border-radius: 10px;
+  transition: width 0.5s ease-in-out;
+  width: 0%;
+}
+
+.equipment-container,
+.spells-container {
+  background-color: var(--color-bg-light);
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+}
+
+.equipment-container h2,
+.spells-container h2,
+.quests-section h2,
+.skill-tree-section h2 {
+  color: var(--color-accent-light);
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 10px;
+  margin-top: 0;
+  font-family: "Pirata One", cursive;
+  font-size: 1.8rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.equipment-list,
+.spell-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.equipment-item,
+.spell-item {
+  background-color: var(--color-bg-main);
+  padding: 12px;
+  border-radius: 4px;
+  border-left: 4px solid var(--color-secondary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.equipment-item:hover,
+.spell-item:hover {
+  transform: translateX(5px);
+  box-shadow: var(--shadow-main);
+}
+
+.equipment-item-equipped {
+  border-left: 4px solid var(--color-accent-light);
+  background-color: rgba(93, 127, 67, 0.2);
+}
+
+.equipment-toggle-btn {
+  background-color: var(--color-secondary);
+  color: var(--color-text);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: "MedievalSharp", cursive;
+  transition: all 0.3s ease;
+}
+
+.spell-cast-btn {
+  background-color: var(--color-secondary);
+  color: var(--color-text);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: "MedievalSharp", cursive;
+  transition: all 0.3s ease;
+}
+
+.equipment-toggle-btn:hover {
+  background-color: var(--color-accent);
+}
+
+/* Quests Section */
+.quests-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.quest-categories {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.quest-category {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: "MedievalSharp", cursive;
+  transition: all 0.3s ease;
+}
+
+.quest-category:hover {
+  background-color: var(--color-bg-light);
+}
+
+.quest-category-active {
+  background-color: var(--color-accent-dark);
+  color: var(--color-text);
+  border-color: var(--color-accent);
+}
+
+.quest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.quest-item {
+  background-color: var(--color-bg-light);
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.quest-item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-main);
+}
+
+.quest-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+  flex: 1;
+}
+
+.quest-xp {
+  background-color: var(--color-accent-dark);
+  color: var(--color-text);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  margin: 0 15px;
+}
+
+.quest-complete-checkbox {
+  margin-right: 5px;
+  cursor: pointer;
+  accent-color: var(--color-accent);
+  width: 18px;
+  height: 18px;
+}
+
+.quest-completed {
+  opacity: 0.7;
+  background-color: rgba(93, 127, 67, 0.2);
+  text-decoration: line-through;
+}
+
+/* Skill Tree Section */
+.skill-tree-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.skill-categories {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.skill-category {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: "MedievalSharp", cursive;
+  transition: all 0.3s ease;
+}
+
+.skill-category:hover {
+  background-color: var(--color-bg-light);
+}
+
+.skill-category-active {
+  background-color: var(--color-accent-dark);
+  color: var(--color-text);
+  border-color: var(--color-accent);
+}
+
+.skill-levels {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.skill-level {
+  background-color: var(--color-bg-light);
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.skill-level h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.2rem;
+}
+
+.skill-level-unlocked {
+  border: 1px solid var(--color-accent);
+  background-color: rgba(93, 127, 67, 0.2);
+}
+
+.skill-level-unlocked h3 {
+  color: var(--color-accent-light);
+}
+
+.skill-level-locked {
+  opacity: 0.7;
+}
+
+.skill-level-locked::after {
+  content: "🔒";
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.2rem;
+}
+
+.skill-unlock-btn {
+  background-color: var(--color-secondary);
+  color: var(--color-text);
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: "MedievalSharp", cursive;
+  transition: all 0.3s ease;
+  align-self: flex-start;
+}
+
+.skill-unlock-btn:hover:not([disabled]) {
+  background-color: var(--color-accent);
+}
+
+.skill-unlock-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .app-container {
+    margin: 10px;
+    border-radius: 4px;
+  }
+
+  .tab {
+    padding: 10px;
+    font-size: 1rem;
+  }
+
+  .character-name {
+    font-size: 2rem;
+  }
+
+  .skill-levels {
+    grid-template-columns: 1fr;
+  }
+
+  .quest-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .quest-xp {
+    margin: 5px 0;
+  }
+}
+
+/* Special Goblin Theme Elements */
+button,
+.equipment-toggle-btn,
+.skill-unlock-btn,
+.quest-category {
+  font-family: "MedievalSharp", cursive;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: bold;
+  position: relative;
+  overflow: hidden;
+}
+
+button:after,
+.equipment-toggle-btn:after,
+.skill-unlock-btn:after,
+.quest-category:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0)
+  );
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+button:hover:after,
+.equipment-toggle-btn:hover:after,
+.skill-unlock-btn:hover:after,
+.quest-category:hover:after {
+  opacity: 1;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-accent-dark);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
+}

@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Real-Life Character Manager</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      <div class="tab-navigation">
+        <button class="tab tab-active" data-tab="character">Character</button>
+        <button class="tab" data-tab="quests">Quests</button>
+        <button class="tab" data-tab="skill-tree">Skill Tree</button>
+        <button class="tab" data-tab="rules">Rules</button>
+      </div>
+
+      <div class="tab-content">
+        <!-- Character Section -->
+        <div class="tab-panel character-section" id="character">
+          <div class="character-header">
+            <div class="character-avatar">
+              <!-- Avatar placeholder - will be provided later -->
+              <div id="avatar-placeholder"></div>
+            </div>
+            <div class="character-info">
+              <h1 class="character-name">Patrin</h1>
+              <div class="character-level">
+                Level: <span id="level">1</span>
+              </div>
+              <div class="character-xp">
+                XP: <span id="current-xp">0</span>/<span id="total-xp"
+                  >100</span
+                >
+                <div class="character-xp-bar">
+                  <div class="character-xp-fill" id="xp-fill"></div>
+                </div>
+              </div>
+              <div class="character-total-xp">
+                XP to next level: <span id="next-level-xp">0</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="spells-container">
+            <h2>Spells</h2>
+            <div class="spell-list" id="spell-list">
+              <!-- Spells will be added here -->
+            </div>
+          </div>
+
+          <div class="equipment-container">
+            <h2>Item Shop</h2>
+            <div class="equipment-list" id="equipment-list">
+              <!-- Equipment items will be added here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Quests Section -->
+        <div class="tab-panel quests-section" id="quests" style="display: none">
+          <div style="display: flex; justify-content: space-between">
+            <h2>Quests</h2>
+            <div>
+              <button id="submit-new-quest" class="quest-category">
+                New Side Quest!
+              </button>
+            </div>
+          </div>
+          <div class="quest-categories" id="quest-categories">
+            <!-- Quest categories will be added here -->
+          </div>
+          <div class="quest-list" id="quest-list">
+            <!-- Quests will be added here -->
+          </div>
+        </div>
+
+        <!-- Skill Tree Section -->
+        <div
+          class="tab-panel skill-tree-section"
+          id="skill-tree"
+          style="display: none"
+        >
+          <h2>Skill Tree</h2>
+          <div class="skill-categories">
+            <button
+              class="skill-category skill-category-active"
+              data-skill="constitution"
+            >
+              Constitution
+            </button>
+            <button class="skill-category" data-skill="dexterity">
+              Dexterity
+            </button>
+            <button class="skill-category" data-skill="accuracy">
+              Accuracy
+            </button>
+            <button class="skill-category" data-skill="agility">Agility</button>
+            <button class="skill-category" data-skill="intelligence">
+              Intelligence
+            </button>
+            <button class="skill-category" data-skill="mana">Mana</button>
+            <button class="skill-category" data-skill="sleight-of-hand">
+              Sleight of Hand
+            </button>
+          </div>
+          <div class="skill-levels" id="skill-levels">
+            <!-- Skill levels will be loaded here -->
+          </div>
+        </div>
+
+        <!-- Rules Section -->
+        <div class="tab-panel rules-section" id="rules" style="display: none">
+          <h2>Rules</h2>
+          <div id="rules-content">
+            <!-- Rules content will be loaded here -->
+          </div>
+          <div class="reset-container">
+            <button id="reset-app" class="reset-app-btn">
+              Reset All Progress
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="data/questCategories.js"></script>
+    <script src="data/characterData.js"></script>
+    <script src="data/quests.js"></script>
+    <script src="data/skillTree.js"></script>
+    <script src="data/rules.js"></script>
+
+    <script>
+      // Init values from files
+      characterData = file_characterData;
+      quests = file_quests;
+      skillTree = file_skillTree;
+      rules = file_rules;
+      questCategories = file_questCategories;
+
+      // Storage management
+      const STORAGE_KEYS = {
+        CHARACTER: "real-life-character-data",
+        QUESTS: "real-life-quests-data",
+        SKILL_TREE: "real-life-skill-tree-data",
+        ACTIVE_TAB: "real-life-active-tab",
+      };
+
+      // Save data to localStorage
+      function saveToStorage(key, data) {
+        try {
+          localStorage.setItem(key, JSON.stringify(data));
+        } catch (error) {
+          console.error(`Error saving to localStorage: ${error}`);
+        }
+      }
+
+      // Load data from localStorage with fallback to default data
+      function loadFromStorage(key, defaultData) {
+        try {
+          const storedData = localStorage.getItem(key);
+          return storedData ? JSON.parse(storedData) : defaultData;
+        } catch (error) {
+          console.error(`Error loading from localStorage: ${error}`);
+          return defaultData;
+        }
+      }
+
+      // Initialize the application
+      document.addEventListener("DOMContentLoaded", () => {
+        // Load stored data or use default data
+        initStorageData();
+        initCharacterSection();
+        initQuestSection();
+        initSkillTreeSection();
+        initRulesSection();
+        initTabNavigation();
+
+        // Initialize the new reset button
+        initResetButton();
+
+        // Initialize the new submit quest button
+        initSubmitQuestButton();
+      });
+
+      // Initialize data from storage or defaults
+      function initStorageData() {
+        // Load character data
+        if (typeof characterData !== "undefined") {
+          characterData = loadFromStorage(
+            STORAGE_KEYS.CHARACTER,
+            characterData,
+          );
+        }
+
+        // Load quests data
+        if (typeof quests !== "undefined") {
+          quests = loadFromStorage(STORAGE_KEYS.QUESTS, quests);
+        }
+
+        // Load skill tree data
+        if (typeof skillTree !== "undefined") {
+          skillTree = loadFromStorage(STORAGE_KEYS.SKILL_TREE, skillTree);
+        }
+      }
+
+      // Tab Navigation
+      function initTabNavigation() {
+        const tabs = document.querySelectorAll(".tab");
+        const storedActiveTab = localStorage.getItem(STORAGE_KEYS.ACTIVE_TAB);
+
+        tabs.forEach((tab) => {
+          tab.addEventListener("click", () => {
+            // Remove active class from all tabs
+            tabs.forEach((t) => t.classList.remove("tab-active"));
+
+            // Add active class to clicked tab
+            tab.classList.add("tab-active");
+
+            // Hide all tab panels
+            const panels = document.querySelectorAll(".tab-panel");
+            panels.forEach((panel) => (panel.style.display = "none"));
+
+            // Show the clicked tab panel
+            const tabId = tab.getAttribute("data-tab");
+            document.getElementById(tabId).style.display = "block";
+
+            // Save active tab to localStorage
+            localStorage.setItem(STORAGE_KEYS.ACTIVE_TAB, tabId);
+          });
+        });
+
+        // Restore active tab from localStorage if available
+        if (storedActiveTab) {
+          const tabToActivate = document.querySelector(
+            `[data-tab="${storedActiveTab}"]`,
+          );
+          if (tabToActivate) {
+            tabToActivate.click();
+          }
+        }
+      }
+
+      // Character Section
+      function initCharacterSection() {
+        // Set character name and stats
+        document.querySelector(".character-name").textContent =
+          characterData.name;
+        document.getElementById("level").textContent = characterData.level;
+        document.getElementById("current-xp").textContent =
+          characterData.currentXP;
+        document.getElementById("next-level-xp").textContent =
+          characterData.xpToNextLevel;
+        document.getElementById("total-xp").textContent = characterData.totalXP;
+        updateXPBar();
+
+        // Load equipment
+        const equipmentList = document.getElementById("equipment-list");
+        equipmentList.innerHTML = "";
+
+        characterData.equipment.forEach((item) => {
+          const itemElement = document.createElement("div");
+          itemElement.classList.add("equipment-item");
+
+          // Add appropriate class based on item state
+          if (item.equipped) {
+            itemElement.classList.add("equipment-item-equipped");
+          } else if (item.owned) {
+            itemElement.classList.add("equipment-item-owned");
+          } else {
+            itemElement.classList.add("equipment-item-for-sale");
+          }
+
+          // Initialize item level if it doesn't exist
+          if (item.level === undefined && item.owned) {
+            item.level = 1;
+          }
+
+          // Create item content based on its state
+          if (!item.owned) {
+            // For sale item
+            itemElement.innerHTML = `
+              <span>${item.name} (${item.type})</span>
+              <span class="equipment-cost">Cost: ${item.cost} XP</span>
+              <button class="equipment-buy-btn">Buy</button>
+            `;
+
+            const buyBtn = itemElement.querySelector(".equipment-buy-btn");
+            buyBtn.addEventListener("click", () => {
+              // Check if player has enough XP
+              if (characterData.currentXP >= item.cost) {
+                // Deduct XP
+                characterData.currentXP -= item.cost;
+                document.getElementById("current-xp").textContent =
+                  characterData.currentXP;
+                updateXPBar();
+
+                // Update item state
+                item.owned = true;
+                item.equipped = false;
+                item.level = 1;
+
+                // Save changes to localStorage
+                saveToStorage(STORAGE_KEYS.CHARACTER, characterData);
+
+                // Refresh equipment display
+                initCharacterSection();
+              } else {
+                alert("Not enough XP to purchase this item!");
+              }
+            });
+          } else {
+            // Get the current stats based on level
+            const currentStats = item.stats ? item.stats[item.level - 1] : "";
+
+            // Owned item (either equipped or unequipped)
+            let itemHTML = `
+              <span>${item.name} (${item.type}) - ${item.effect} ${currentStats}</span>
+              <div class="equipment-actions">
+            `;
+
+            // Add upgrade button if not at max level
+            if (item.stats && item.level < item.maxLevel) {
+              const upgradeCost = item.level * 10;
+              itemHTML += `
+                <span class="equipment-level">Level: ${item.level}/${item.maxLevel}</span>
+                <span class="equipment-upgrade-cost">Upgrade Cost: ${upgradeCost} XP</span>
+                <button class="equipment-upgrade-btn">Upgrade</button>
+              `;
+            } else if (item.stats) {
+              itemHTML += `
+                <span class="equipment-level">Level: ${item.level}/${item.maxLevel} (MAX)</span>
+              `;
+            }
+            itemHTML += `<button class="equipment-toggle-btn">${
+              item.equipped ? "Unequip" : "Equip"
+            }</button>`;
+            itemHTML += `</div>`;
+            itemElement.innerHTML = itemHTML;
+
+            const toggleBtn = itemElement.querySelector(
+              ".equipment-toggle-btn",
+            );
+            toggleBtn.addEventListener("click", () => {
+              item.equipped = !item.equipped;
+
+              // Save changes to localStorage
+              saveToStorage(STORAGE_KEYS.CHARACTER, characterData);
+
+              // Refresh equipment display
+              initCharacterSection();
+            });
+
+            // Add upgrade functionality if button exists
+            const upgradeBtn = itemElement.querySelector(
+              ".equipment-upgrade-btn",
+            );
+            if (upgradeBtn && item.level < item.maxLevel) {
+              upgradeBtn.addEventListener("click", () => {
+                const upgradeCost = item.level * 10;
+
+                // Check if player has enough XP
+                if (characterData.currentXP >= upgradeCost) {
+                  // Deduct XP
+                  characterData.currentXP -= upgradeCost;
+                  document.getElementById("current-xp").textContent =
+                    characterData.currentXP;
+                  updateXPBar();
+
+                  // Upgrade item
+                  item.level++;
+
+                  // Save changes to localStorage
+                  saveToStorage(STORAGE_KEYS.CHARACTER, characterData);
+
+                  // Refresh equipment display
+                  initCharacterSection();
+                } else {
+                  alert("Not enough XP to upgrade this item!");
+                }
+              });
+            }
+          }
+
+          equipmentList.appendChild(itemElement);
+        });
+
+        loadSpells();
+      }
+
+      function loadSpells() {
+        const spellList = document.getElementById("spell-list");
+        spellList.innerHTML = "";
+
+        // Check for expired cooldowns
+        const currentTime = Date.now();
+        characterData.spells.forEach((spell) => {
+          if (
+            spell.onCooldown &&
+            spell.cooldownEnd &&
+            spell.cooldownEnd <= currentTime
+          ) {
+            spell.onCooldown = false;
+            clearCooldown(spell);
+          }
+        });
+
+        characterData.spells.forEach((spell) => {
+          const spellElement = document.createElement("div");
+          spellElement.classList.add("spell-item");
+
+          // Add appropriate class based on spell state
+          if (spell.owned) {
+            spellElement.classList.add("spell-item-owned");
+            if (spell.onCooldown) {
+              spellElement.classList.add("spell-item-cooldown");
+            }
+          } else {
+            spellElement.classList.add("spell-item-for-sale");
+          }
+
+          // Create spell content based on its state
+          if (!spell.owned) {
+            // For sale spell
+            spellElement.innerHTML = `
+        <div class="spell-info">
+          <strong>${spell.name}</strong>
+        </div>
+        <div class="spell-actions">
+          <span class="spell-cost">Cost: ${spell.cost} XP</span>
+          <button class="spell-buy-btn">Learn</button>
+        </div>
+      `;
+
+            const buyBtn = spellElement.querySelector(".spell-buy-btn");
+            buyBtn.addEventListener("click", () => {
+              // Check if player has enough XP
+              if (characterData.currentXP >= spell.cost) {
+                // Deduct XP
+                characterData.currentXP -= spell.cost;
+                document.getElementById("current-xp").textContent =
+                  characterData.currentXP;
+                updateXPBar();
+
+                // Update spell state
+                spell.owned = true;
+                spell.onCooldown = false;
+
+                // Save changes to localStorage
+                saveToStorage(STORAGE_KEYS.CHARACTER, characterData);
+
+                // Refresh spells display
+                loadSpells();
+              } else {
+                alert("Not enough XP to purchase this spell!");
+              }
+            });
+          } else if (spell.onCooldown) {
+            // Spell on cooldown
+            const remainingTime = Math.ceil(
+              (spell.cooldownEnd - Date.now()) / 1000,
+            );
+
+            spellElement.innerHTML = `
+        <div class="spell-info">
+          <strong>${spell.name}</strong>: ${spell.description}
+        </div>
+        <div class="spell-actions">
+          <span class="spell-cooldown" data-spell-id="${spell.id}">Cooldown: ${remainingTime}s</span>
+        </div>
+      `;
+
+            // Update the cooldown timer
+            if (remainingTime > 0) {
+              if (!spell.intervalId) {
+                spell.intervalId = setInterval(() => {
+                  updateSpellCooldown(spell);
+                }, 1000);
+              }
+            } else {
+              clearCooldown(spell);
+              loadSpells();
+            }
+          } else {
+            // Owned spell ready to cast
+            spellElement.innerHTML = `
+        <div class="spell-info">
+          <strong>${spell.name}</strong>: ${spell.description}
+        </div>
+        <div class="spell-actions">
+          <span class="spell-cast-cost">Cast Cost: ${spell.castCost} XP</span>
+          <span class="spell-cooldown-info">Cooldown: ${spell.cooldownTime}s</span>
+          <button class="spell-cast-btn">Cast</button>
+        </div>
+      `;
+
+            const castBtn = spellElement.querySelector(".spell-cast-btn");
+            castBtn.addEventListener("click", () => {
+              // Check if player has enough XP to cast
+              if (characterData.currentXP >= spell.castCost) {
+                // Deduct XP
+                characterData.currentXP -= spell.castCost;
+                document.getElementById("current-xp").textContent =
+                  characterData.currentXP;
+                updateXPBar();
+
+                // Set spell on cooldown
+                spell.onCooldown = true;
+                spell.cooldownEnd = Date.now() + spell.cooldownTime * 1000;
+
+                // Save changes to localStorage
+                saveToStorage(STORAGE_KEYS.CHARACTER, characterData);
+
+                // Show spell effect (this could be expanded)
+                alert(`${spell.name} cast successfully!`);
+
+                // Refresh spells display
+                loadSpells();
+              } else {
+                alert("Not enough XP to cast this spell!");
+              }
+            });
+          }
+
+          spellList.appendChild(spellElement);
+        });
+      }
+
+      // Update spell cooldown
+      function updateSpellCooldown(spell) {
+        const cooldownElement = document.querySelector(
+          `.spell-cooldown[data-spell-id="${spell.id}"]`,
+        );
+        if (cooldownElement) {
+          const remainingTime = Math.ceil(
+            (spell.cooldownEnd - Date.now()) / 1000,
+          );
+
+          if (remainingTime <= 0) {
+            clearCooldown(spell);
+
+            // Save changes to localStorage
+            saveToStorage(STORAGE_KEYS.CHARACTER, characterData);
+
+            loadSpells();
+          } else {
+            cooldownElement.textContent = `Cooldown: ${remainingTime}s`;
+          }
+        }
+      }
+
+      // Clear cooldown timer
+      function clearCooldown(spell) {
+        if (spell.intervalId) {
+          clearInterval(spell.intervalId);
+          spell.intervalId = null;
+        }
+        spell.onCooldown = false;
+      }
+
+      // XP Bar Update
+      function updateXPBar() {
+        const percentage =
+          (characterData.currentXP / characterData.xpToNextLevel) * 100;
+        document.getElementById("xp-fill").style.width = `${percentage}%`;
+      }
+
+      // Quests Section
+      function initQuestSection() {
+        // Load quest categories
+        const questCategoriesContainer =
+          document.getElementById("quest-categories");
+        questCategoriesContainer.innerHTML = "";
+        let firstCategory = null;
+
+        questCategories.forEach((category, index) => {
+          const categoryBtn = document.createElement("button");
+          categoryBtn.classList.add("quest-category");
+          if (index === 0) {
+            categoryBtn.classList.add("quest-category-active");
+            firstCategory = category.id;
+          }
+          categoryBtn.setAttribute("data-category", category.id);
+          categoryBtn.textContent = category.name;
+
+          categoryBtn.addEventListener("click", () => {
+            // Remove active class from all category buttons
+            document.querySelectorAll(".quest-category").forEach((btn) => {
+              btn.classList.remove("quest-category-active");
+            });
+
+            // Add active class to clicked button
+            categoryBtn.classList.add("quest-category-active");
+
+            // Show quests for this category
+            showQuestsForCategory(category.id);
+          });
+
+          questCategoriesContainer.appendChild(categoryBtn);
+        });
+
+        // Show quests for the first category
+        if (firstCategory) {
+          showQuestsForCategory(firstCategory);
+        }
+      }
+
+      function showQuestsForCategory(categoryId) {
+        const questList = document.getElementById("quest-list");
+        questList.innerHTML = "";
+
+        const categoryQuests = quests.filter(
+          (quest) => quest.category === categoryId,
+        );
+
+        categoryQuests.forEach((quest) => {
+          const questElement = document.createElement("div");
+          questElement.classList.add("quest-item");
+          if (quest.completed) {
+            questElement.classList.add("quest-completed");
+          }
+
+          questElement.innerHTML = `
+            <span class="quest-name">${quest.name}</span>
+            <span class="quest-xp">XP: ${quest.xp}</span>
+            <label>
+              <input type="checkbox" class="quest-complete-checkbox" ${
+                quest.completed ? "checked" : ""
+              }>
+              Complete
+            </label>
+          `;
+
+          const checkbox = questElement.querySelector(
+            ".quest-complete-checkbox",
+          );
+          checkbox.addEventListener("change", () => {
+            if (checkbox.checked && !quest.completed) {
+              // Complete the quest
+              quest.completed = true;
+              questElement.classList.add("quest-completed");
+
+              // Add XP to character
+              characterData.currentXP += quest.xp;
+              // Also add to total XP
+              characterData.totalXP += quest.xp;
+
+              // Update display
+              document.getElementById("current-xp").textContent =
+                characterData.currentXP;
+              document.getElementById("total-xp").textContent =
+                characterData.totalXP;
+              updateXPBar();
+
+              // Save changes to localStorage
+              saveToStorage(STORAGE_KEYS.QUESTS, quests);
+              saveToStorage(STORAGE_KEYS.CHARACTER, characterData);
+
+              // Check for level up
+              checkLevelUp();
+            } else if (!checkbox.checked && quest.completed) {
+              // Uncomplete the quest
+              quest.completed = false;
+              questElement.classList.remove("quest-completed");
+
+              // Remove XP from character
+              characterData.currentXP -= quest.xp;
+              // Also remove from total XP
+              characterData.totalXP -= quest.xp;
+
+              // Update display
+              document.getElementById("current-xp").textContent =
+                characterData.currentXP;
+              document.getElementById("total-xp").textContent =
+                characterData.totalXP;
+              updateXPBar();
+
+              // Save changes to localStorage
+              saveToStorage(STORAGE_KEYS.QUESTS, quests);
+              saveToStorage(STORAGE_KEYS.CHARACTER, characterData);
+            }
+          });
+
+          questList.appendChild(questElement);
+        });
+      }
+
+      // Level Up
+      function checkLevelUp() {
+        if (characterData.currentXP >= characterData.xpToNextLevel) {
+          characterData.level++;
+          characterData.xpToNextLevel += Math.floor(
+            characterData.xpToNextLevel * 1.5,
+          ); // Increase XP needed for next level
+
+          document.getElementById("level").textContent = characterData.level;
+          document.getElementById("current-xp").textContent =
+            characterData.currentXP;
+          document.getElementById("next-level-xp").textContent =
+            characterData.xpToNextLevel;
+          updateXPBar();
+
+          // Save changes to localStorage
+          saveToStorage(STORAGE_KEYS.CHARACTER, characterData);
+
+          alert(`Level Up! You are now level ${characterData.level}!`);
+        }
+      }
+
+      // Skill Tree Section
+      function initSkillTreeSection() {
+        const skillCategories = document.querySelectorAll(".skill-category");
+        let currentSkill = "constitution"; // Default skill to show
+
+        // Add click event to skill category buttons
+        skillCategories.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            // Remove active class from all skill buttons
+            skillCategories.forEach((b) =>
+              b.classList.remove("skill-category-active"),
+            );
+
+            // Add active class to clicked button
+            btn.classList.add("skill-category-active");
+
+            // Show levels for this skill
+            currentSkill = btn.getAttribute("data-skill");
+            showSkillLevels(currentSkill);
+          });
+        });
+
+        // Show default skill levels
+        showSkillLevels(currentSkill);
+      }
+
+      function showSkillLevels(skillName) {
+        const skillLevelsContainer = document.getElementById("skill-levels");
+        skillLevelsContainer.innerHTML = "";
+
+        const skillLevels = skillTree[skillName];
+
+        skillLevels.forEach((level) => {
+          const levelElement = document.createElement("div");
+          levelElement.classList.add("skill-level");
+          if (level.unlocked) {
+            levelElement.classList.add("skill-level-unlocked");
+          } else {
+            levelElement.classList.add("skill-level-locked");
+          }
+
+          levelElement.innerHTML = `
+            <h3>Level ${level.level}: ${level.name}</h3>
+            <p>${level.subtext ? level.subtext : ""}</p>
+            <div class="skill-cost">XP Cost: ${(level.level - 1) * 10}</div>
+            <button class="skill-unlock-btn" ${
+              level.unlocked ? "disabled" : ""
+            }>
+              ${level.unlocked ? "Unlocked" : "Unlock"}
+            </button>
+          `;
+
+          const unlockBtn = levelElement.querySelector(".skill-unlock-btn");
+
+          // Only enable unlock button if previous level is unlocked
+          if (!level.unlocked && level.level > 1) {
+            const previousLevel = skillLevels.find(
+              (l) => l.level === level.level - 1,
+            );
+            if (!previousLevel || !previousLevel.unlocked) {
+              unlockBtn.disabled = true;
+            }
+          }
+
+          unlockBtn.addEventListener("click", () => {
+            if (
+              !level.unlocked &&
+              (level.level === 1 ||
+                skillLevels.find((l) => l.level === level.level - 1).unlocked)
+            ) {
+              // Check if player has enough XP
+              const xpCost = level.xpCost || 50; // Default cost if not specified
+
+              if (characterData.currentXP >= xpCost) {
+                // Deduct XP
+                characterData.currentXP -= xpCost;
+                document.getElementById("current-xp").textContent =
+                  characterData.currentXP;
+                updateXPBar();
+
+                // Unlock the skill
+                level.unlocked = true;
+                levelElement.classList.remove("skill-level-locked");
+                levelElement.classList.add("skill-level-unlocked");
+                unlockBtn.textContent = "Unlocked";
+                unlockBtn.disabled = true;
+
+                // Save changes to localStorage
+                saveToStorage(STORAGE_KEYS.SKILL_TREE, skillTree);
+                saveToStorage(STORAGE_KEYS.CHARACTER, characterData);
+
+                // Enable the next level if it exists
+                const nextLevel = skillLevels.find(
+                  (l) => l.level === level.level + 1,
+                );
+                if (nextLevel) {
+                  const nextLevelBtn = document.querySelector(
+                    `.skill-level:nth-child(${
+                      level.level + 1
+                    }) .skill-unlock-btn`,
+                  );
+                  if (nextLevelBtn) {
+                    nextLevelBtn.disabled = false;
+                  }
+                }
+              } else {
+                alert("Not enough XP to unlock this skill!");
+              }
+            }
+          });
+
+          skillLevelsContainer.appendChild(levelElement);
+        });
+      }
+
+      // Rules Section
+      function initRulesSection() {
+        const rulesContent = document.getElementById("rules-content");
+
+        // Check if rules data exists
+        if (typeof rules !== "undefined") {
+          rulesContent.innerHTML = rules.content;
+        } else {
+          rulesContent.innerHTML = "<p>Rules content will be loaded here.</p>";
+        }
+      }
+
+      // Reset Button functionality
+      function initResetButton() {
+        const resetButton = document.getElementById("reset-app");
+        resetButton.addEventListener("click", () => {
+          // Ask for confirmation
+          const confirmed = confirm(
+            "Are you sure you want to reset all progress? This cannot be undone.",
+          );
+
+          if (confirmed) {
+            // Clear all localStorage
+            console.log("Resetting all progress...", characterData);
+            characterData = file_characterData;
+            quests = file_quests;
+            skillTree = file_skillTree;
+            rules = file_rules;
+            questCategories = file_questCategories;
+
+            saveToStorage(STORAGE_KEYS.CHARACTER, characterData);
+            saveToStorage(STORAGE_KEYS.QUESTS, quests);
+            saveToStorage(STORAGE_KEYS.SKILL_TREE, skillTree);
+
+            window.location.reload();
+            // Reload the page to start fresh
+          }
+        });
+      }
+
+      // Submit New Quest functionality
+      function initSubmitQuestButton() {
+        const submitQuestButton = document.getElementById("submit-new-quest");
+        submitQuestButton.addEventListener("click", () => {
+          // Prompt for quest name
+          const questName = prompt("Enter the quest description:");
+          if (!questName || questName.trim() === "") return;
+
+          // Prompt for XP amount
+          const xpAmountStr = prompt("Enter the XP reward amount:");
+          const xpAmount = parseInt(xpAmountStr);
+
+          // Validate XP amount
+          if (isNaN(xpAmount) || xpAmount <= 0) {
+            alert("Please enter a valid positive number for XP.");
+            return;
+          }
+
+          // Generate a new quest ID (highest existing ID + 1)
+          const newId = Math.max(...quests.map((quest) => quest.id), 0) + 1;
+
+          // Create the new quest
+          const newQuest = {
+            id: newId,
+            category: "side", // Use "side" for Side Quests category
+            name: questName,
+            completed: false,
+            xp: xpAmount,
+          };
+
+          // Add to quests array
+          quests.push(newQuest);
+
+          // Save to localStorage
+          saveToStorage(STORAGE_KEYS.QUESTS, quests);
+
+          // Check if Side Quests category exists, add if not
+          let sideQuestCategoryExists = questCategories.some(
+            (cat) => cat.id === "side",
+          );
+
+          if (!sideQuestCategoryExists) {
+            questCategories.push({
+              id: "side",
+              name: "Side Quests",
+            });
+
+            // Refresh quest categories
+            initQuestSection();
+          } else {
+            // If we're currently displaying the side quests category, refresh it
+            const activeCategory = document.querySelector(
+              ".quest-category-active",
+            );
+            if (
+              activeCategory &&
+              activeCategory.getAttribute("data-category") === "side"
+            ) {
+              showQuestsForCategory("side");
+            }
+          }
+
+          // Show confirmation
+          alert(`New quest "${questName}" added with ${xpAmount} XP reward!`);
+        });
+      }
+
+      // Add window event to save data before unload
+      window.addEventListener("beforeunload", () => {
+        // Save all data to ensure nothing is lost on page refresh/close
+        if (typeof characterData !== "undefined") {
+          saveToStorage(STORAGE_KEYS.CHARACTER, characterData);
+        }
+        if (typeof quests !== "undefined") {
+          saveToStorage(STORAGE_KEYS.QUESTS, quests);
+        }
+        if (typeof skillTree !== "undefined") {
+          saveToStorage(STORAGE_KEYS.SKILL_TREE, skillTree);
+        }
+      });
+    </script>
+  </body>
+</html>
