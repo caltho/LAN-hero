@@ -66,7 +66,6 @@ let file_skillTree = {
       subtext:
         "Monitor resolution 1600x1200 and 66% brightness + low contrast mode",
     },
-    ,
     {
       level: 3,
       name: "Sharpshooter",
